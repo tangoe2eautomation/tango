@@ -1,0 +1,38 @@
+---
+name: blueprint-1
+iteration: 1
+description: "Description"
+resources: 
+  mysql: 
+    type: Compute
+    properties:
+      name: mysql-compute 
+      imageType: ubuntu
+      instanceType: small
+      constraints:
+        - tag: dev
+      networks: 
+        - name: "${wpnet.name}"
+      cloudConfig: |
+          #cloud-config
+          repo_update: true
+          repo_upgrade: all
+          
+          packages:
+           - mysql-server
+          
+          runcmd:
+           - sed -e '/bind-address/ s/^#*/#/' -i /etc/mysql/mysql.conf.d/mysqld.cnf
+           - service mysql restart
+           - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'mysqlpassword';"
+           - mysql -e "FLUSH PRIVILEGES;"
+  
+  wpnet:
+    type: "Compute.Network"
+    properties:
+      name: wpnet
+      networkType: public
+      outboundAccess: true
+      constraints:
+        - tag: public-net
+        - tag: dev
