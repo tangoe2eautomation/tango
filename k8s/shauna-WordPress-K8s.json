@@ -1,0 +1,275 @@
+{
+    "name": "shauna-WordPress-K8s",
+    "description": "Kubernetes pipeline template",
+    "enabled": false,
+    "pivotInput": "GIT_COMMIT_ID",
+    "pivotOutput": "",
+    "options": [
+        "CONCURRENT",
+        "GIT_TRIGGER"
+    ],
+    "input": {
+        "GIT_SERVER_URL": "",
+        "GIT_BRANCH_NAME": "",
+        "GIT_COMMIT_ID": "",
+        "GIT_EVENT_TIMESTAMP": "",
+        "GIT_EVENT_DESCRIPTION": "",
+        "GIT_REPO_NAME": "",
+        "GIT_EVENT_OWNER_NAME": "",
+        "GIT_CHANGE_SUBJECT": ""
+    },
+    "inputMeta": {
+        "GIT_SERVER_URL": {
+            "displayName": "Server URL",
+            "mandatory": false
+        },
+        "GIT_BRANCH_NAME": {
+            "displayName": "Branch",
+            "mandatory": false
+        },
+        "GIT_COMMIT_ID": {
+            "displayName": "CommitId",
+            "mandatory": false
+        },
+        "GIT_EVENT_TIMESTAMP": {
+            "displayName": "Event timestamp",
+            "mandatory": false
+        },
+        "GIT_EVENT_DESCRIPTION": {
+            "displayName": "Description",
+            "mandatory": false
+        },
+        "GIT_REPO_NAME": {
+            "displayName": "Repo name",
+            "mandatory": false
+        },
+        "GIT_EVENT_OWNER_NAME": {
+            "displayName": "Owner name",
+            "mandatory": false
+        },
+        "GIT_CHANGE_SUBJECT": {
+            "displayName": "Change subject",
+            "mandatory": false
+        }
+    },
+    "output": {},
+    "outputMeta": {},
+    "layout": {
+        "stageOrder": [
+            "Dev",
+            "Prod"
+        ],
+        "stageLayouts": {
+            "Dev": [
+                [
+                    "CleanEnvironment"
+                ],
+                [
+                    "CreateEnvironment"
+                ],
+                [
+                    "DeployWordPress"
+                ],
+                [
+                    "TestWordPressDeployment"
+                ]
+            ],
+            "Prod": [
+                [
+                    "ApproveProdDeployment"
+                ],
+                [
+                    "UpdateProdDeployment"
+                ],
+                [
+                    "TestProdDeployment"
+                ],
+                [
+                    "DeleteTestPod"
+                ]
+            ]
+        }
+    },
+    "stages": {
+        "Prod": {
+            "name": "Prod",
+            "events": []
+        },
+        "Dev": {
+            "name": "Dev",
+            "events": []
+        }
+    },
+    "tasks": {
+        "Dev.CreateEnvironment": {
+            "name": "Create Environment",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": false,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "CREATE",
+                "scm": "",
+                "remoteFilePath": "/k8s/environment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Dev}"
+            },
+            "events": []
+        },
+        "Dev.DeployWordPress": {
+            "name": "Deploy WordPress",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": false,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "CREATE",
+                "scm": "",
+                "remoteFilePath": "/k8s/wordpress-deployment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Dev}"
+            },
+            "events": []
+        },
+        "Prod.UpdateProdDeployment": {
+            "name": "Update Prod Deployment",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": false,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "APPLY",
+                "scm": "",
+                "remoteFilePath": "/k8s/wordpress-deployment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Prod}"
+            },
+            "events": []
+        },
+        "Dev.TestWordPressDeployment": {
+            "name": "Test WordPress Deployment",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": true,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "CREATE",
+                "scm": "",
+                "remoteFilePath": "/k8s/testpod-deployment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Dev}"
+            },
+            "events": []
+        },
+        "Prod.ApproveProdDeployment": {
+            "name": "Approve Prod Deployment",
+            "type": "userOp:request",
+            "condition": "",
+            "ignoreFailure": false,
+            "configured": true,
+            "input": {
+                "pipelineName": "${name}",
+                "expirationInDays": "1",
+                "subject": "Approve Prod Deployment on K8S",
+                "body": "Please approve it.",
+                "users": [
+                    "shauna@vmware.com"
+                ],
+                "isEmailEnabled": "false"
+            },
+            "outputMeta": {},
+            "endpoints": {},
+            "events": []
+        },
+        "Prod.DeleteTestPod": {
+            "name": "Delete Test Pod",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": true,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "DELETE",
+                "scm": "",
+                "remoteFilePath": "/k8s/testpod-deployment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Prod}"
+            },
+            "events": []
+        },
+        "Dev.CleanEnvironment": {
+            "name": "Clean Environment",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": true,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "DELETE",
+                "scm": "",
+                "remoteFilePath": "/k8s/environment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Dev}"
+            },
+            "events": []
+        },
+        "Prod.TestProdDeployment": {
+            "name": "Test Prod Deployment",
+            "type": "kubernetes:executeOperation",
+            "condition": "",
+            "ignoreFailure": true,
+            "configured": true,
+            "input": {
+                "payload": "",
+                "action": "CREATE",
+                "scm": "",
+                "remoteFilePath": "/k8s/testpod-deployment.yaml"
+            },
+            "outputMeta": {},
+            "endpoints": {
+                "kubernetesServer": "${endpoint.AWS-K8S-Prod}"
+            },
+            "events": []
+        }
+    },
+    "events": [
+        {
+            "eventGroup": "SUCCESS",
+            "provider": "EMAIL",
+            "endpoint": "${endpoint.VMware-Email}",
+            "properties": {
+                "content": "WordPress was deployed successfully at ${endDate}.  Please see ${executionUrl} for details.\n\nIt took ${duration} to execute.",
+                "to": "shauna@vmware.com",
+                "subject": "WordPress application with Commit ID ${input.GIT_COMMIT_ID} was deployed successfully."
+            },
+            "configurationId": "EMAIL-1509736766549"
+        },
+        {
+            "eventGroup": "FAILURE",
+            "provider": "EMAIL",
+            "endpoint": "${endpoint.VMware-Email}",
+            "properties": {
+                "content": "It failed due to ${statusMessage}.\nSee ${executionUrl} for details.",
+                "to": "shauna@vmware.com",
+                "subject": "WordPress Commit ID ${input.GIT_COMMIT_ID} failed to deploy."
+            },
+            "configurationId": "EMAIL-1509736861669"
+        }
+    ]
+}
