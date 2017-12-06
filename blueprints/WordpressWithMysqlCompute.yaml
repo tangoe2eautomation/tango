@@ -40,7 +40,7 @@ resources:
     properties:
       name: wordpress 
       imageType: ubuntu
-      instanceType: medium
+      instanceType: small
       constraints:
         - tag: dev
       networks: 
