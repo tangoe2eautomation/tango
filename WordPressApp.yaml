@@ -1,0 +1,90 @@
+inputs:
+  environment:
+    type: string
+    default: dev
+    enum:
+      - dev
+      - test
+      - staging
+      - prod
+  instanceCount:
+    type: integer
+    minimum: 1
+    maximum: 2
+    default: 1
+resources:
+  mysql:
+    type: Cloud.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: mysql
+      flavor: small
+      image: ubuntu
+      networks:
+        - name: '${wpnet.name}'
+      constraints:
+        - tag: '${input.environment}'
+      cloudConfig: |
+        #cloud-config
+        repo_update: true
+        repo_upgrade: all
+
+        packages:
+         - mysql-server
+
+        runcmd:
+         - sed -e '/bind-address/ s/^#*/#/' -i /etc/mysql/mysql.conf.d/mysqld.cnf
+         - service mysql restart
+         - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'mysqlpassword';"
+         - mysql -e "FLUSH PRIVILEGES;"
+  wordpress:
+    type: Cloud.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 1
+    properties:
+      name: wordpress
+      flavor: small
+      image: ubuntu
+      count: '${input.instanceCount}'
+      networks:
+        - name: '${wpnet.name}'
+      constraints:
+        - tag: '${input.environment}'
+      cloudConfig: |
+        #cloud-config
+        repo_update: true
+        repo_upgrade: all
+
+        packages:
+         - apache2
+         - php
+         - php-mysql
+         - libapache2-mod-php
+         - php-mcrypt
+         - mysql-client
+
+        runcmd:
+         - mkdir -p /var/www/html/mywordpresssite && cd /var/www/html && wget https://wordpress.org/latest.tar.gz && tar -xzf /var/www/html/latest.tar.gz -C /var/www/html/mywordpresssite --strip-components 1
+         - i=0; while [ $i -le 10 ]; do mysql --connect-timeout=3 -h ${mysql.networks[0].address} -u root -pmysqlpassword -e "SHOW STATUS;" && break || sleep 15; i=$((i+1)); done
+         - mysql -u root -pmysqlpassword -h ${mysql.networks[0].address} -e "create database wordpress_blog;"
+         - mv /var/www/html/mywordpresssite/wp-config-sample.php /var/www/html/mywordpresssite/wp-config.php
+         - sed -i -e s/"define('DB_NAME', 'database_name_here');"/"define('DB_NAME', 'wordpress_blog');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_USER', 'username_here');"/"define('DB_USER', 'root');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_PASSWORD', 'password_here');"/"define('DB_PASSWORD', 'mysqlpassword');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_HOST', 'localhost');"/"define('DB_HOST', '${mysql.networks[0].address}');"/ /var/www/html/mywordpresssite/wp-config.php
+         - service apache2 reload
+  wpnet:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: wpnet
+      networkType: public
+      outboundAccess: true
+      constraints:
+        - tag: '${input.environment}'
+        - tag: public-net
