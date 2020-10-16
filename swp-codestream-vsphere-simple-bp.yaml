@@ -1,5 +1,13 @@
 formatVersion: 1
-inputs: {}
+inputs:
+  flavor:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    title: flavor
+    description: Choose the flavor
 resources:
   Cloud_vSphere_Machine_1:
     type: Cloud.vSphere.Machine
@@ -8,12 +16,11 @@ resources:
         - 0
         - 0
     properties:
-      image: tiny-windows-7
-      cpuCount: 1
-      totalMemoryMB: 1024
+      image: centos65x64
+      flavor: '${input.flavor}'
       storage:
         constraints:
-          - tag: 'swp-sp:sqa-vc67-ds-qe-1'
+          - tag: eso-vra-vc-blr-vsan-storage
       networks:
         - network: '${resource.Cloud_vSphere_Network_1.id}'
   Cloud_vSphere_Network_1:
@@ -25,4 +32,4 @@ resources:
     properties:
       networkType: existing
       constraints:
-        - tag: 'swp-nw:sqa-vc67-vmnetworksqa'
+        - tag: eso-vra-vc-blr-network-VC-VM-MGMT-503
