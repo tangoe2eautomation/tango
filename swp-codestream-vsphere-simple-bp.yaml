@@ -8,22 +8,32 @@ inputs:
       - large
     title: flavor
     description: Choose the flavor
+  VC:
+    type: string
+    enum:
+      - vc-blr
+      - swp-vc67
+    title: VC
 resources:
   Cloud_vSphere_Machine_1:
     type: Cloud.vSphere.Machine
     properties:
       image: centos65x64
       flavor: '${input.flavor}'
-      constraints: 
-        - tag: vc-blr
-      storage:
-        constraints:
-          - tag: eso-vra-vc-blr-vsan-storage
+      constraints:
+        - tag: '${input.VC}'
       networks:
         - network: '${resource.Cloud_vSphere_Network_1.id}'
+        - network: '${resource.Cloud_vSphere_Network_2.id}'
   Cloud_vSphere_Network_1:
     type: Cloud.vSphere.Network
     properties:
       networkType: existing
       constraints:
-        - tag: eso-vra-vc-blr-network-VC-VM-MGMT-503
+        - tag: network1
+  Cloud_vSphere_Network_2:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing
+      constraints:
+        - tag: network2
