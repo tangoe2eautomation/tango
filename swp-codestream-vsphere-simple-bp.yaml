@@ -1,1 +1,52 @@
-Test
+formatVersion: 1
+inputs:
+  flavor:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    title: flavor
+    description: Choose the flavor
+  VC:
+    type: string
+    enum:
+      - vc-blr
+      - swp-vc67
+    title: VC
+    default: vc-blr
+resources:
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      image: centos65x64
+      flavor: '${input.flavor}'
+      constraints:
+        - tag: '${input.VC}'
+      networks:
+        - network: '${resource.Cloud_vSphere_Network_1.id}'
+        - network: '${resource.Cloud_vSphere_Network_2.id}'
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      networkType: existing
+      constraints:
+        - tag: network1
+  Cloud_vSphere_Network_2:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 2
+        - 0
+    properties:
+      networkType: existing
+      constraints:
+        - tag: network2
