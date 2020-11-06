@@ -14,7 +14,6 @@ inputs:
       - vc-blr
       - swp-vc67
     title: VC
-    default: vc-blr
 resources:
   Cloud_vSphere_Machine_1:
     type: Cloud.vSphere.Machine
