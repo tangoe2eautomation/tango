@@ -11,13 +11,11 @@ inputs:
 resources:
   Cloud_vSphere_Machine_1:
     type: Cloud.vSphere.Machine
-    metadata:
-      layoutPosition:
-        - 0
-        - 0
     properties:
       image: centos65x64
       flavor: '${input.flavor}'
+      constraints: 
+        - tag: vc-blr
       storage:
         constraints:
           - tag: eso-vra-vc-blr-vsan-storage
@@ -25,10 +23,6 @@ resources:
         - network: '${resource.Cloud_vSphere_Network_1.id}'
   Cloud_vSphere_Network_1:
     type: Cloud.vSphere.Network
-    metadata:
-      layoutPosition:
-        - 1
-        - 0
     properties:
       networkType: existing
       constraints:
