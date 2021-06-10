@@ -13,4 +13,6 @@ spec:
     resources:
       limits:
         cpu: 100m
-        memory: 200Mi        
+        memory: 200Mi
+  imagePullSecrets:
+  - name: tangoe2e-tangoe2e-test2-secret
