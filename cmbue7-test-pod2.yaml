@@ -6,11 +6,18 @@ metadata:
   labels:
     purpose: precious
 spec:
+  securityContext:
+    runAsUser: 1000
   containers:
   - imagePullPolicy: IfNotPresent
+    securityContext:
+      runAsUser: 2000
+      runAsGroup: 3000
     name: e2e-test-container
-    image: nginx:latest
+    image: nginxinc/nginx-unprivileged
     resources:
       limits:
         cpu: 100m
         memory: 200Mi
+  imagePullSecrets:
+  - name: tangoe2e-tangoe2e-test1-secret
