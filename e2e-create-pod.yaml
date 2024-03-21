@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: e2e-test-pod
-  namespace: tango-e2e-do-not-delete
+  namespace: tangoe2e-tangoe2e-test1
   labels:
     purpose: precious
 spec:
