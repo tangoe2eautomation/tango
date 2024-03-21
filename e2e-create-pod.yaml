@@ -9,8 +9,8 @@ spec:
   containers:
   - imagePullPolicy: IfNotPresent
     name: e2e-test-container
-    image: nginx:latest
+    image: symphony-docker-local.artifactory.eng.vmware.com/nginx:1.14.2
     resources:
       limits:
         cpu: 100m
-        memory: 200Mi        
+        memory: 200Mi
