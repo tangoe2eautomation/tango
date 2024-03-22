@@ -2,15 +2,15 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: e2e-test-pod2
-  namespace: tango-e2e-do-not-delete2
+  namespace: tangoe2e-tangoe2e-test2
   labels:
     purpose: precious
 spec:
   containers:
   - imagePullPolicy: IfNotPresent
-    name: e2e-test-container
-    image: nginx:latest
+    name: e2e-test-container2
+    image: symphony-docker-local.artifactory.eng.vmware.com/nginx:1.14.2
     resources:
       limits:
         cpu: 100m
-        memory: 200Mi        
+        memory: 200Mi
