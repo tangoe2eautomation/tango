@@ -1,0 +1,8 @@
+name: kavithaj-github-test
+version: BLUEPRINT_VERSION
+resources:
+  Cloud_Machine_1:
+    type: Cloud.Machine
+    properties:
+      image: ubuntu
+      flavor: small
