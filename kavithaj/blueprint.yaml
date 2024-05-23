@@ -6,6 +6,8 @@ resources:
     properties:
       image: ubuntu
       flavor: small
+      attachedDisks:
+        - source: ${resource.Cloud_Volume_1.id}
   Cloud_Volume_1:
     type: Cloud.Volume
     properties:
