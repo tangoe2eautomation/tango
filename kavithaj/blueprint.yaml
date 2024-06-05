@@ -1,5 +1,5 @@
 name: kavithaj-github-test
-version: BLUEPRINT_VERSION_2
+version: BLUEPRINT_VERSION_a
 resources:
   Cloud_Machine_1:
     type: Cloud.Machine
